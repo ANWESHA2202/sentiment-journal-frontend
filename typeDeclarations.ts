@@ -19,3 +19,9 @@ export interface SignInForm {
   email: string;
   password: string;
 }
+
+export interface ProfileUpdationData {
+  spotifyAccessToken?: string;
+  email?: string;
+  username?: string;
+}

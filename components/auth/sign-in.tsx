@@ -39,7 +39,7 @@ const SignIn = ({
     setIsSubmitting(true);
     try {
       const result = await signInUser(form);
-      console.log(result, "result");
+      console.log(result, "signInUser");
       setIsLoggedIn(true);
       setUser(result);
       setOpenAuth(false);

@@ -59,6 +59,7 @@ const Chart = () => {
     switch (period) {
       case "weekly":
         // Assuming the date represents the start of the week
+        // @ts-ignore
         const weekNum = new Date(date).getWeek();
         return `Week ${weekNum}`;
 
@@ -74,6 +75,7 @@ const Chart = () => {
   };
 
   // Add this helper function for getting week number
+  // @ts-ignore
   Date.prototype.getWeek = function () {
     const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
     const pastDaysOfYear =

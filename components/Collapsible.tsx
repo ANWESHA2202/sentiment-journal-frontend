@@ -12,10 +12,12 @@ export function Collapsible({
   title,
   open = false,
   otherStyles,
+  childrenStyles = {},
 }: PropsWithChildren & {
   title: string;
   open?: boolean;
   otherStyles?: object;
+  childrenStyles?: object;
 }) {
   const [isOpen, setIsOpen] = useState(open);
   const theme = useColorScheme() ?? "light";
@@ -39,7 +41,11 @@ export function Collapsible({
           <ThemedText type="defaultSemiBold">{title}</ThemedText>
         </TouchableOpacity>
       )}
-      {isOpen && <ThemedView style={styles.content}>{children}</ThemedView>}
+      {isOpen && (
+        <ThemedView style={{ ...styles.content, ...childrenStyles }}>
+          {children}
+        </ThemedView>
+      )}
     </ThemedView>
   );
 }
@@ -49,6 +55,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+    padding: 10,
   },
   content: {
     marginTop: 6,
@@ -58,9 +65,7 @@ const styles = StyleSheet.create({
   collapsibleContainer: {
     minHeight: 500,
     position: "absolute",
-
     left: 0,
-
     bottom: 0,
   },
 });

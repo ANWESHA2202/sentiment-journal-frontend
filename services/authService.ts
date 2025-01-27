@@ -4,7 +4,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { SignInForm, UserData } from "@/typeDeclarations";
+import { ProfileUpdationData, SignInForm, UserData } from "@/typeDeclarations";
 // import * as Google from "expo-auth-session/providers/google";
 // import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 // import { getReactNativePersistence } from "firebase/auth";
@@ -55,7 +55,16 @@ export const signInUser = async (
       email,
       password
     );
-    return userCredential.user as UserData;
+    const user = userCredential.user;
+
+    // Fetch user data from Firestore
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists()) {
+      return userDoc.data() as UserData;
+    }
+    return null;
   } catch (error: any) {
     console.error("Error signing in:", error.message);
     return null;
@@ -80,5 +89,19 @@ export const getCurrentUser = async (): Promise<UserData | null> => {
     }
   } catch (error) {
     return null;
+  }
+};
+
+export const updateUserProfile = async (
+  user: UserData,
+  profile: ProfileUpdationData
+) => {
+  try {
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, { ...user, ...profile });
+    return true;
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    return false;
   }
 };
