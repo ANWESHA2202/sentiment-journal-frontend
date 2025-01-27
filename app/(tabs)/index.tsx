@@ -1,74 +1,218 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StatusBar,
+  SafeAreaView,
+  ScrollView,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Redirect } from "expo-router";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { icons, images } from "@/constants";
+import { LinearGradient } from "expo-linear-gradient";
+import { Collapsible } from "@/components/Collapsible";
+import SignIn from "@/components/auth/sign-in";
+import SignUp from "@/components/auth/sign-up";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const Index = () => {
+  const { isLoggedIn, isLoading } = useGlobalContext();
 
-export default function HomeScreen() {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+
+  const [openAuth, setOpenAuth] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
+
+  const handlePress = () => setOpenAuth(!openAuth);
+
+  useEffect(() => {
+    if (!isLoading) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(animatedValue, {
+            toValue: 1,
+            duration: 3000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
+  }, [isLoading]);
+
+  const interpolatedRotate = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  if (!isLoading && isLoggedIn) return <Redirect href={"/home"} />;
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.viewContainer}>
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <View style={styles.imageContainer}>
+            <Image
+              source={images.featureImage1}
+              style={{ height: 200, width: 200 }}
+              resizeMode="contain"
+            />
+          </View>
+          <View
+            style={{
+              ...styles.imageContainer,
+              marginLeft: -100,
+              marginTop: 100,
+            }}
+          >
+            <Image
+              source={images.featureImage2}
+              style={{ height: 200, width: 200 }}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>Welcome to your personal space...</Text>
+          <Text style={styles.subtitle}>
+            Share your thoughts, ideas, and reveal your true self.
+          </Text>
+
+          <TouchableOpacity onPress={handlePress}>
+            <View style={styles.buttonContainer}>
+              <Animated.View
+                style={[
+                  styles.gradientBorder,
+                  { transform: [{ rotate: interpolatedRotate }] },
+                ]}
+              >
+                <LinearGradient
+                  colors={["#C71585", "#9400D3", "#191970"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={StyleSheet.absoluteFill}
+                />
+              </Animated.View>
+              <LinearGradient
+                colors={["#4B0082", "#9400D3", "#000080"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.button}
+              >
+                <Text style={styles.buttonText}>Get Started</Text>
+              </LinearGradient>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+      {openAuth && (
+        <Collapsible
+          open={openAuth}
+          title="Auth"
+          otherStyles={{ width: "100%" }}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              setOpenAuth(false);
+            }}
+            style={{
+              position: "absolute",
+              top: 20,
+              right: 20,
+              padding: 10,
+              zIndex: 1000,
+            }}
+            activeOpacity={0.7}
+          >
+            <Image
+              source={icons.plus}
+              style={{
+                height: 20,
+                width: 20,
+                transform: [{ rotate: "45deg" }],
+              }}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          {isSignup ? (
+            <SignUp setOpenAuth={setOpenAuth} />
+          ) : (
+            <SignIn setIsSignup={setIsSignup} setOpenAuth={setOpenAuth} />
+          )}
+        </Collapsible>
+      )}
+    </SafeAreaView>
   );
-}
+};
+
+export default Index;
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  viewContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  imageContainer: {
+    borderWidth: 1,
+    borderColor: "white",
+    height: 208,
+    width: 208,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  textContainer: {
+    marginTop: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+  },
+  subtitle: {
+    fontSize: 16,
+    marginTop: 10,
+    color: "lightgray",
+  },
+  buttonContainer: {
+    marginTop: 20,
+    position: "relative",
+    padding: 2,
+    borderRadius: 7,
+    overflow: "hidden",
+    width: 200,
+    alignSelf: "center",
+  },
+  gradientBorder: {
+    position: "absolute",
+    top: -150,
+    left: -150,
+    right: -150,
+    bottom: -150,
+    borderRadius: 999,
+    opacity: 0.7,
+  },
+  button: {
+    padding: 15,
+    borderRadius: 5,
+    backgroundColor: "#000",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
