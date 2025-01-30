@@ -9,6 +9,8 @@ import {
   getDoc,
   doc,
   updateDoc,
+  deleteDoc,
+  orderBy,
 } from "firebase/firestore";
 import { Journal } from "@/typeDeclarations";
 
@@ -24,7 +26,7 @@ export const addJournal = async ({
   title: string;
   content: string;
   textContent: string;
-  callback?: () => void;
+  callback?: (id?: string) => void;
 }) => {
   const journalData: Journal = {
     userId,
@@ -34,8 +36,8 @@ export const addJournal = async ({
     textContent,
   };
   try {
-    await addDoc(collection(db, "journals"), journalData);
-    callback?.();
+    const response = await addDoc(collection(db, "journals"), journalData);
+    callback?.(response?.id);
   } catch (error) {
     console.error("Error adding journal:", error);
   }
@@ -44,7 +46,11 @@ export const addJournal = async ({
 // Get Journals
 export const getJournals = async (userId: string): Promise<Journal[]> => {
   try {
-    const q = query(collection(db, "journals"), where("userId", "==", userId));
+    const q = query(
+      collection(db, "journals"),
+      where("userId", "==", userId),
+      orderBy("createdAt", "desc")
+    );
     const querySnapshot = await getDocs(q);
 
     const journals: Journal[] = [];
@@ -79,20 +85,41 @@ export const updateJournal = async ({
   title,
   content,
   textContent,
+  sentiment,
   callback,
 }: {
   journalId: string;
   title: string;
   content: string;
   textContent: string;
+  sentiment?: string;
   callback?: () => void;
 }) => {
   try {
     const docRef = doc(db, "journals", journalId);
-    const journalData = { title, content, textContent };
+    const journalData: {
+      title: string;
+      content: string;
+      textContent: string;
+      sentiment?: string;
+    } = { title, content, textContent };
+    if (sentiment) {
+      journalData.sentiment = sentiment;
+    }
     await updateDoc(docRef, journalData);
     callback?.();
   } catch (error) {
     console.error("Error updating journal:", error);
+  }
+};
+
+// Delete Journal
+export const deleteJournal = async (journalId: string) => {
+  try {
+    await deleteDoc(doc(db, "journals", journalId));
+    return true;
+  } catch (error) {
+    console.error("Error deleting journal:", error);
+    return false;
   }
 };

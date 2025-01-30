@@ -40,6 +40,9 @@ const Index = () => {
         ])
       ).start();
     }
+    return () => {
+      animatedValue.stopAnimation();
+    };
   }, [isLoading]);
 
   const interpolatedRotate = animatedValue.interpolate({

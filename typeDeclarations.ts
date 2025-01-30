@@ -22,6 +22,7 @@ export interface SignInForm {
 
 export interface ProfileUpdationData {
   spotifyAccessToken?: string;
+  spotifyRefreshToken?: string;
   email?: string;
   username?: string;
 }

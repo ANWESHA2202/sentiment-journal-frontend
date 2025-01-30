@@ -1,7 +1,7 @@
 import { Alert } from "react-native";
 import React, { useState } from "react";
 import Editor from "@/components/journal-editor/Editor";
-import { addJournal } from "@/services/journalServices";
+import { addJournal, updateJournal } from "@/services/journalServices";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { router } from "expo-router";
 
@@ -23,13 +23,44 @@ const WriteJournal = () => {
     { text: "", style: {} },
   ]);
 
+  const analyzeJournal = async (textContent: string, id?: string) => {
+    try {
+      const response = await fetch(
+        "http://192.168.31.61:5002/api/sentiment/analyze",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: textContent,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (data?.length && id) {
+        updateJournal({
+          journalId: id,
+          title,
+          content: JSON.stringify(content),
+          textContent,
+          sentiment: JSON.stringify(data),
+        });
+      }
+    } catch (error) {
+      console.error("Error analyzing journal:", error);
+    }
+  };
+
   const handleSave = async () => {
+    const textContent = content?.map((item) => item?.text).join(". ");
     const payload = {
       userId: user?.uid,
       title,
-      textContent: content?.map((item) => item?.text).join(". "),
+      textContent,
       content: JSON.stringify(content),
-      callback: () => {
+      callback: (id?: string) => {
+        analyzeJournal(textContent, id);
         Alert.alert("Journal saved");
         router.push("/");
       },

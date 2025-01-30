@@ -23,13 +23,44 @@ const EditJournal = () => {
     }
   };
 
+  const analyzeJournal = async (textContent: string, id?: string) => {
+    try {
+      const response = await fetch(
+        "http://192.168.31.61:5002/api/sentiment/analyze",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: textContent,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (data?.length && id) {
+        updateJournal({
+          journalId: id,
+          title,
+          content: JSON.stringify(content),
+          textContent,
+          sentiment: JSON.stringify(data),
+        });
+      }
+    } catch (error) {
+      console.error("Error analyzing journal:", error);
+    }
+  };
+
   const handleSave = async () => {
+    const textContent = content?.map((item) => item?.text).join(". ");
     const payload = {
       journalId: journalId as string,
       title,
       content: JSON.stringify(content),
-      textContent: content?.map((item) => item?.text).join(". "),
+      textContent,
       callback: () => {
+        analyzeJournal(textContent, journalId as string);
         Alert.alert("Journal updated");
         router.push("/");
       },

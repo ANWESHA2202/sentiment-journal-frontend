@@ -16,6 +16,7 @@ import { makeRedirectUri } from "expo-auth-session";
 import { updateUserProfile } from "@/services/authService";
 
 const CLIENT_ID = process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = makeRedirectUri();
 const SCOPES = [
   "user-read-recently-played",
@@ -29,7 +30,7 @@ const Profile = () => {
 
   const handleSpotifyAuth = async () => {
     try {
-      const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(
         REDIRECT_URI
       )}&scope=${encodeURIComponent(SCOPES)}`;
 
@@ -39,16 +40,36 @@ const Profile = () => {
       );
       if (response.type === "success") {
         const { url } = response;
-        // Extract access token from URL
-        const accessToken = url.split("access_token=")[1].split("&")[0];
+        // Extract authorization code from URL
+        const code = url.split("code=")[1].split("&")[0];
 
-        const profileUpdate = await updateUserProfile(user, {
-          spotifyAccessToken: accessToken,
-        });
-        if (profileUpdate) {
-          setUser((prev: any) => {
-            return { ...prev, spotifyAccessToken: accessToken };
+        // You'll need to exchange this code for access and refresh tokens
+        // This should be done on your backend to keep client_secret secure
+        const tokenResponse = await fetch(
+          "https://accounts.spotify.com/api/token",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `grant_type=authorization_code&code=${code}&redirect_uri=${encodeURIComponent(
+              REDIRECT_URI
+            )}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`,
+          }
+        );
+
+        const tokens = await tokenResponse.json();
+        // Now you'll have both access_token and refresh_token
+        if (tokens?.access_token) {
+          const profileUpdate = await updateUserProfile(user, {
+            spotifyAccessToken: tokens.access_token,
+            spotifyRefreshToken: tokens.refresh_token,
           });
+          if (profileUpdate) {
+            setUser((prev: any) => {
+              return { ...prev, spotifyAccessToken: tokens.access_token };
+            });
+          }
         }
       }
     } catch (error) {

@@ -17,9 +17,7 @@ const Chart = () => {
   const { user } = useGlobalContext();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>([]);
-  const [period, setPeriod] = useState<string>("weekly");
-  const [showEmotionPicker, setShowEmotionPicker] = useState(false);
-  const [selectedEmotion, setSelectedEmotion] = useState("neutral");
+  const [period, setPeriod] = useState<string>("short_term");
 
   const fetchData = async () => {
     try {
@@ -34,12 +32,11 @@ const Chart = () => {
           body: JSON.stringify({
             userId: user?.uid,
             period: period,
-            emotion: selectedEmotion,
           }),
         }
       );
       const data = await response.json();
-      console.log(data, "dataset");
+
       setData(data);
     } catch (error) {
       console.error("Error fetching or analyzing journals:", error);
@@ -51,46 +48,16 @@ const Chart = () => {
     if (user?.uid) {
       fetchData();
     }
-  }, [user, period, selectedEmotion]);
+    return () => {
+      setData([]);
+    };
+  }, [user, period]);
 
-  const formatLabel = (date: string, period: string) => {
-    if (!date) return "";
+  // Update the labels and scores preparation
+  const chartData = data?.sort((a: any, b: any) => b.avgScore - a.avgScore); // Sort by avgScore
+  const labels = chartData?.map((item: any) => item.label) || [];
+  const scores = chartData?.map((item: any) => item.avgScore) || [];
 
-    switch (period) {
-      case "weekly":
-        // Assuming the date represents the start of the week
-        // @ts-ignore
-        const weekNum = new Date(date).getWeek();
-        return `Week ${weekNum}`;
-
-      case "monthly":
-        const monthDate = new Date(date);
-        return monthDate.toLocaleString("default", { month: "short" });
-
-      case "daily":
-      default:
-        // Keep the original date format or format as needed
-        return date;
-    }
-  };
-
-  // Add this helper function for getting week number
-  // @ts-ignore
-  Date.prototype.getWeek = function () {
-    const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
-    const pastDaysOfYear =
-      (this.getTime() - firstDayOfYear.getTime()) / 86400000;
-    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-  };
-
-  const labels =
-    data?.map((item: any) => formatLabel(item?.date, period)) || [];
-  const scores =
-    data?.map((item: any) => {
-      const score = parseFloat(item?.avgScore);
-      return isNaN(score) ? 0 : score;
-    }) || [];
-  console.log("showing charts");
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
@@ -113,94 +80,47 @@ const Chart = () => {
       ) : (
         <View style={styles.chartContainer}>
           <View style={styles.optionsContainer}>
-            <View style={styles.dropdownContainer}>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => setShowEmotionPicker(true)}
-              >
-                <View style={styles.dropdownContent}>
-                  <ThemedText style={{ fontSize: 14 }}>
-                    {
-                      emotionEmojis[
-                        selectedEmotion as keyof typeof emotionEmojis
-                      ]
-                    }
-                  </ThemedText>
-                  <ThemedText style={{ fontSize: 12, marginLeft: 4 }}>
-                    ▼
-                  </ThemedText>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <Modal
-              visible={showEmotionPicker}
-              transparent={true}
-              animationType="slide"
-              onRequestClose={() => setShowEmotionPicker(false)}
-            >
-              <TouchableOpacity
-                style={styles.modalOverlay}
-                activeOpacity={1}
-                onPress={() => setShowEmotionPicker(false)}
-              >
-                <View style={styles.modalContent}>
-                  {Object.entries(emotionEmojis).map(([emotion, emoji]) => (
-                    <TouchableOpacity
-                      key={emotion}
-                      style={styles.emotionItem}
-                      onPress={() => {
-                        setSelectedEmotion(emotion);
-                        setShowEmotionPicker(false);
-                      }}
-                    >
-                      <ThemedText style={styles.emotionText}>
-                        {emoji} {emotion}
-                      </ThemedText>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </TouchableOpacity>
-            </Modal>
-
             <View style={styles.periods}>
-              {availablePeriods.map((p, index) => (
+              {availablePeriods?.map((p, index) => (
                 <TouchableOpacity
-                  key={p}
+                  key={p.value}
                   style={[
                     styles.periodButton,
                     index !== availablePeriods.length - 1 &&
                       styles.periodDivider,
-                    p === period && styles.activePeriod,
+                    p.value === period && styles.activePeriod,
                   ]}
-                  onPress={() => setPeriod(p)}
+                  onPress={() => setPeriod(p.value)}
                 >
                   <ThemedText
                     style={{
                       fontSize: 12,
-                      ...(p === period && styles.activeText),
+                      ...(p.value === period && styles.activeText),
                     }}
                   >
-                    {p}
+                    {p.label}
                   </ThemedText>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
-          <Text style={styles.yAxisLabel}>Emotion Quotient →</Text>
+          <Text style={styles.yAxisLabel}>Score →</Text>
           <LineChart
             data={{
-              labels,
+              labels: labels?.map(
+                (label: string) =>
+                  emotionEmojis[label as keyof typeof emotionEmojis]
+              ),
               datasets: [
                 {
-                  data: scores.length > 0 ? scores : [0],
+                  data: scores?.length > 0 ? scores : [0],
                 },
               ],
             }}
             width={Dimensions.get("window").width - 40}
             height={220}
             yAxisSuffix=""
-            yAxisInterval={1}
+            yAxisInterval={0.2} // Changed to show more y-axis lines
             chartConfig={{
               backgroundColor: "#08130d",
               backgroundGradientFrom: "#08130d",
@@ -217,13 +137,14 @@ const Chart = () => {
                 strokeWidth: "2",
                 stroke: "#ffa726",
               },
+              formatYLabel: (value) => parseFloat(value)?.toFixed(1),
             }}
             style={{
               marginVertical: 8,
               borderRadius: 16,
             }}
           />
-          <Text style={styles.xAxisLabel}>Time Period →</Text>
+          <Text style={styles.xAxisLabel}>Emotions →</Text>
         </View>
       )}
     </SafeAreaView>
@@ -284,7 +205,7 @@ const styles = StyleSheet.create({
   },
   yAxisLabel: {
     position: "absolute",
-    left: -50,
+    left: 0,
     top: "40%",
     transform: [{ rotate: "-90deg" }],
     color: "white",

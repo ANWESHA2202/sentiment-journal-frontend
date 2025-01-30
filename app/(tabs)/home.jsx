@@ -1,6 +1,5 @@
-import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { StyleSheet, SafeAreaView } from "react-native";
 import React from "react";
-import { ThemedText } from "@/components/ThemedText";
 import JournalList from "@/components/journal-editor/JournalList";
 import Chart from "@/components/chart/Chart";
 

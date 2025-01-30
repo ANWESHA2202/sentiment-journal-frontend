@@ -40,10 +40,12 @@ const SignIn = ({
     try {
       const result = await signInUser(form);
       console.log(result, "signInUser");
-      setIsLoggedIn(true);
-      setUser(result);
-      setOpenAuth(false);
-      router.replace("/home");
+      if (result?.uid) {
+        setIsLoggedIn(true);
+        setUser(result);
+        setOpenAuth(false);
+        router.replace("/home");
+      }
     } catch (err: any) {
       Alert.alert("Error", err.message);
     } finally {
