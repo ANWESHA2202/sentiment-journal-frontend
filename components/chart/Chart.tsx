@@ -18,12 +18,13 @@ const Chart = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>([]);
   const [period, setPeriod] = useState<string>("short_term");
+  const [isMounted, setIsMounted] = useState(true);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://192.168.31.61:5002/api/sentiment/generateGraph",
+        `${process.env.EXPO_PUBLIC_SENTIMENT_API_URL}/generateGraph`,
         {
           method: "POST",
           headers: {
@@ -37,18 +38,25 @@ const Chart = () => {
       );
       const data = await response.json();
 
-      setData(data);
+      if (isMounted) {
+        setData(data);
+      }
     } catch (error) {
       console.error("Error fetching or analyzing journals:", error);
     } finally {
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }
   };
   useEffect(() => {
+    setIsMounted(true);
+
     if (user?.uid) {
       fetchData();
     }
     return () => {
+      setIsMounted(false);
       setData([]);
     };
   }, [user, period]);

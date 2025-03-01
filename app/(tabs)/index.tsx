@@ -20,6 +20,7 @@ import SignUp from "@/components/auth/sign-up";
 
 const Index = () => {
   const { isLoggedIn, isLoading } = useGlobalContext();
+  if (!isLoading && isLoggedIn) return <Redirect href={"/home"} />;
 
   const animatedValue = useRef(new Animated.Value(0)).current;
 
@@ -50,7 +51,6 @@ const Index = () => {
     outputRange: ["0deg", "360deg"],
   });
 
-  if (!isLoading && isLoggedIn) return <Redirect href={"/home"} />;
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.viewContainer}>

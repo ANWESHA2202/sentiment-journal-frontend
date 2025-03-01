@@ -22,6 +22,13 @@ const SCOPES = [
   "user-read-recently-played",
   "user-top-read",
   "playlist-read-private",
+  "playlist-modify-public",
+  "playlist-modify-private",
+  "user-read-playback-state",
+  "user-modify-playback-state",
+  "user-read-currently-playing",
+  "user-read-playback-position",
+  "user-read-private",
 ].join(" ");
 
 const Profile = () => {
@@ -103,7 +110,13 @@ const Profile = () => {
             <View style={styles.subOptionContainer}>
               <TouchableOpacity
                 style={styles.subOptionItem}
-                onPress={() => handleSpotifyAuth()}
+                onPress={() => {
+                  if (user?.spotifyAccessToken?.length > 0) {
+                    handleSpotifyAuthDelete();
+                  } else {
+                    handleSpotifyAuth();
+                  }
+                }}
               >
                 <MaterialCommunityIcons
                   name={subItem.icon}
@@ -127,7 +140,13 @@ const Profile = () => {
                     borderColor:
                       user?.spotifyAccessToken?.length > 0 ? "red" : "green",
                   }}
-                  onPress={() => handleSpotifyAuthDelete()}
+                  onPress={() => {
+                    if (user?.spotifyAccessToken?.length > 0) {
+                      handleSpotifyAuthDelete();
+                    } else {
+                      handleSpotifyAuth();
+                    }
+                  }}
                 >
                   <ThemedText
                     style={{

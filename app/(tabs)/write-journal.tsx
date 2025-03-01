@@ -26,7 +26,7 @@ const WriteJournal = () => {
   const analyzeJournal = async (textContent: string, id?: string) => {
     try {
       const response = await fetch(
-        "http://192.168.31.61:5002/api/sentiment/analyze",
+        `${process.env.EXPO_PUBLIC_SENTIMENT_API_URL}/analyze`,
         {
           method: "POST",
           headers: {

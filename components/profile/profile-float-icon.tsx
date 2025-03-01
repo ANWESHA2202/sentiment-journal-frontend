@@ -37,7 +37,7 @@ const ProfileFloatIcon = () => {
           <TouchableOpacity
             style={styles.popoverItem}
             onPress={() => {
-              router.push("/music-recommendations");
+              router.push("/music-recommendation");
               setShowPopover(false);
             }}
           >
