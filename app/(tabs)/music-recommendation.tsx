@@ -1,7 +1,6 @@
 import {
   Button,
   StyleSheet,
-  Text,
   View,
   FlatList,
   Image,
@@ -75,7 +74,7 @@ const MusicRecommendation = () => {
       }
     );
     const data = await response.json();
-    console.log(data, "data");
+
     setPlaylists(data?.playlists?.items || []);
     setIsUpdating(false);
   };
@@ -231,7 +230,6 @@ const MusicRecommendation = () => {
   useEffect(() => {
     fetchRecommendations();
   }, []);
-  console.log(playlists, "playlists");
   return (
     <ThemedView style={styles.container}>
       <ThemedText style={styles.title}>Music Recommendation</ThemedText>
@@ -240,7 +238,7 @@ const MusicRecommendation = () => {
         <FlatList
           data={recommendations}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
           style={styles.list}
           refreshControl={
             <RefreshControl

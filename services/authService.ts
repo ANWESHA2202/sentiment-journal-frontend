@@ -3,7 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { ProfileUpdationData, SignInForm, UserData } from "@/typeDeclarations";
 // import * as Google from "expo-auth-session/providers/google";
 // import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
@@ -98,7 +98,18 @@ export const updateUserProfile = async (
 ) => {
   try {
     const userDocRef = doc(db, "users", user.uid);
-    await setDoc(userDocRef, { ...user, ...profile });
+    console.log("user", user, profile);
+
+    // Convert profile data to dot notation format
+    const formattedProfile = Object.entries(profile).reduce(
+      (acc, [key, value]) => {
+        acc[key.includes(".") ? key : `${key}.${key}`] = value;
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+
+    await updateDoc(userDocRef, formattedProfile);
     return true;
   } catch (error) {
     console.error("Error updating user profile:", error);

@@ -3,10 +3,12 @@ import React, { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import { auth } from "@/firebase";
+import { signOut } from "firebase/auth";
 const ProfileFloatIcon = () => {
   const [showPopover, setShowPopover] = useState(false);
   const { user } = useGlobalContext();
-
+  console.log("user", user?.providerData);
   return (
     <View>
       <View style={styles.floatingIcon}>
@@ -47,6 +49,17 @@ const ProfileFloatIcon = () => {
               <Text style={styles.popoverText}>Music recommendations</Text>
             </TouchableOpacity>
           )}
+          <TouchableOpacity
+            style={styles.popoverItem}
+            onPress={() => {
+              signOut(auth);
+              setShowPopover(false);
+              router.replace("/");
+            }}
+          >
+            <MaterialCommunityIcons name="music" size={24} color="gray" />
+            <Text style={styles.popoverText}>Logout</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>

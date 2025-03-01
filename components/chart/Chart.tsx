@@ -38,7 +38,7 @@ const Chart = () => {
       );
       const data = await response.json();
 
-      if (isMounted) {
+      if (isMounted && Array.isArray(data)) {
         setData(data);
       }
     } catch (error) {

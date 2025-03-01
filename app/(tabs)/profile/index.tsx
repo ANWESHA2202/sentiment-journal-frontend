@@ -33,7 +33,6 @@ const SCOPES = [
 
 const Profile = () => {
   const { user, setUser } = useGlobalContext();
-  const [expandedSection, setExpandedSection] = useState<number | null>(0);
 
   const handleSpotifyAuth = async () => {
     try {
