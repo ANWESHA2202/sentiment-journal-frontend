@@ -100,16 +100,7 @@ export const updateUserProfile = async (
     const userDocRef = doc(db, "users", user.uid);
     console.log("user", user, profile);
 
-    // Convert profile data to dot notation format
-    const formattedProfile = Object.entries(profile).reduce(
-      (acc, [key, value]) => {
-        acc[key.includes(".") ? key : `${key}.${key}`] = value;
-        return acc;
-      },
-      {} as Record<string, any>
-    );
-
-    await updateDoc(userDocRef, formattedProfile);
+    await updateDoc(userDocRef, { ...profile });
     return true;
   } catch (error) {
     console.error("Error updating user profile:", error);
