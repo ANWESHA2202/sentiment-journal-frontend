@@ -2,9 +2,10 @@ import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import React, { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-
+import { useGlobalContext } from "@/context/GlobalProvider";
 const ProfileFloatIcon = () => {
   const [showPopover, setShowPopover] = useState(false);
+  const { user } = useGlobalContext();
 
   return (
     <View>
@@ -34,16 +35,18 @@ const ProfileFloatIcon = () => {
             <Text style={styles.popoverText}>Profile</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.popoverItem}
-            onPress={() => {
-              router.push("/music-recommendation");
-              setShowPopover(false);
-            }}
-          >
-            <MaterialCommunityIcons name="music" size={24} color="gray" />
-            <Text style={styles.popoverText}>Music recommendations</Text>
-          </TouchableOpacity>
+          {user?.spotifyAccessToken && (
+            <TouchableOpacity
+              style={styles.popoverItem}
+              onPress={() => {
+                router.push("/music-recommendation");
+                setShowPopover(false);
+              }}
+            >
+              <MaterialCommunityIcons name="music" size={24} color="gray" />
+              <Text style={styles.popoverText}>Music recommendations</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </View>
