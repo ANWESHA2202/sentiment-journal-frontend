@@ -43,15 +43,22 @@ To learn more about developing your project with Expo, look at the following res
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
 ##App demo
-##login flow
+
+features includes:
+1. Basic login-sign up using email
+2. Journal add edit delete
+3. spotify integration
+4. Emotion graph based on recent spotify music and journal sentiment analysis
+5. Music recommendation based on recent mood(analysed from spotify musics)
+4. Adding or creating new spotify playlists
+
 https://github.com/user-attachments/assets/0b16efaa-b404-45ef-b670-1164180f0b70
 
 
-##adding journals
+
 https://github.com/user-attachments/assets/42ae63bc-aad4-4779-8f5e-adef2f5ad1e7
 
 
-##spotify integration, music recommendations and playlist management 
 https://github.com/user-attachments/assets/50eaf839-4e72-44cb-a82f-0255a1af28c4
 
 
