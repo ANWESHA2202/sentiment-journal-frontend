@@ -6,7 +6,9 @@ import { router } from "expo-router";
 const WriteJournal = () => {
   return (
     <View style={styles.floatingIcon}>
-      <TouchableOpacity onPress={() => router.push("/write-journal")}>
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/write-journal" as any)}
+      >
         <MaterialCommunityIcons
           name="notebook-edit-outline"
           size={24}

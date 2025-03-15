@@ -133,7 +133,7 @@ const JournalList = () => {
       (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
 
     if (hoursDifference <= 12) {
-      router.push(`/edit-journal/${journal.id}`);
+      router.push(`/(tabs)/edit-journal/${journal.id}` as any);
     } else {
       Alert.alert(
         "Cannot Edit Journal",
@@ -158,7 +158,9 @@ const JournalList = () => {
     return (
       <View>
         <ThemedText>No journals found</ThemedText>
-        <TouchableOpacity onPress={() => router.push("/write-journal")}>
+        <TouchableOpacity
+          onPress={() => router.push("/(tabs)/write-journal" as any)}
+        >
           <ThemedText>Go head to create your first journal...</ThemedText>
         </TouchableOpacity>
       </View>

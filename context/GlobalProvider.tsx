@@ -3,6 +3,7 @@ import { auth, db } from "@/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
+import { View } from "react-native";
 
 const GlobalContext = createContext<any>(null);
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -10,7 +11,7 @@ export const useGlobalContext = () => useContext(GlobalContext);
 export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     // Set up persistent auth state listener
@@ -22,7 +23,6 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
             // Fetch user data from Firestore
             const userDocRef = doc(db, "users", currentUser.uid);
             const userDoc = await getDoc(userDocRef);
-
             if (userDoc.exists()) {
               // Combine auth user with Firestore data
               setUser({
@@ -54,7 +54,6 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoading(false);
       }
     );
-
     // Clean up subscription on unmount
     return () => unsubscribe();
   }, []);
@@ -63,7 +62,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     <GlobalContext.Provider
       value={{ isLoggedIn, setIsLoggedIn, user, setUser, isLoading }}
     >
-      {isLoading ? null : children}
+      {isLoading ? <View></View> : children}
     </GlobalContext.Provider>
   );
 };

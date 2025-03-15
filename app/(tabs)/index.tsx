@@ -59,7 +59,7 @@ const Index = () => {
   if (!isLoading && isLoggedIn) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Redirect href="/home" />
+        <Redirect href={"/home" as any} />
       </View>
     );
   }
@@ -169,7 +169,7 @@ const Index = () => {
     );
   }
 
-  return null;
+  return <View></View>;
 };
 
 export default Index;

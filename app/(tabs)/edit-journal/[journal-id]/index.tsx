@@ -62,7 +62,7 @@ const EditJournal = () => {
       callback: () => {
         analyzeJournal(textContent, journalId as string);
         Alert.alert("Journal updated");
-        router.push("/");
+        router.push("/" as any);
       },
     };
     await updateJournal(payload);

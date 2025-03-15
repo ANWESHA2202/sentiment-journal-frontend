@@ -29,7 +29,7 @@ const ProfileFloatIcon = () => {
           <TouchableOpacity
             style={styles.popoverItem}
             onPress={() => {
-              router.push("/profile");
+              router.push("/(tabs)/profile" as any);
               setShowPopover(false);
             }}
           >
@@ -41,7 +41,7 @@ const ProfileFloatIcon = () => {
             <TouchableOpacity
               style={styles.popoverItem}
               onPress={() => {
-                router.push("/music-recommendation");
+                router.push("/music-recommendation" as any);
                 setShowPopover(false);
               }}
             >
@@ -54,7 +54,7 @@ const ProfileFloatIcon = () => {
             onPress={() => {
               signOut(auth);
               setShowPopover(false);
-              router.replace("/");
+              router.replace("/" as any);
             }}
           >
             <MaterialCommunityIcons name="music" size={24} color="gray" />
